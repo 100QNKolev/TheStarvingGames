@@ -21,7 +21,7 @@ class AIService {
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-o3-mini",
         messages: [{
           role: "system",
           content: "You are a creative AI generating humorous but tasteful content for a Hunger Games parody game. Always respond with valid JSON only, no markdown or code blocks."
@@ -58,32 +58,42 @@ class AIService {
       return map;
     }, {});
 
-    const prompt = `Generate a humorous event for day ${day} of a Hunger Games parody. Players involved: ${players.map(p => p.name).join(', ')}. 
+    // Calculate death probability that increases with each day
+    const baseDeathChance = 0.3; // 30% base chance for death events
+    const dayMultiplier = 0.1; // Increases by 10% each day
+    const deathProbability = Math.min(0.8, baseDeathChance + (day * dayMultiplier)); // Cap at 80%
+
+    // Determine if this should be a death event
+    const isDeathEvent = Math.random() < deathProbability;
+
+    const prompt = `Generate a humorous ${isDeathEvent ? 'DEATH' : ''} event for day ${day} of a Hunger Games parody. Players involved: ${players.map(p => p.name).join(', ')}. 
     Current game state: ${JSON.stringify(gameState)}
     Return only a JSON object with these fields:
     {
       "description": "event description",
-      "type": "one of: death/alliance/betrayal/combat/environment/other",
+      "type": "${isDeathEvent ? 'death' : 'one of: alliance/betrayal/combat/environment/other'}",
       "affected_player_names": ["player1_name", "player2_name"],
       "outcomes": {
         "player1_name": "outcome description",
         "player2_name": "outcome description"
       }
     }
-    Create an entertaining scenario that could involve alliances, betrayals, or combat.
-    Use ONLY the following player names: ${players.map(p => p.name).join(', ')}`;
+    ${isDeathEvent ? 'This MUST be a death event where at least one player dies.' : 'Create an entertaining scenario that could involve alliances, betrayals, or combat.'}
+    Use ONLY the following player names: ${players.map(p => p.name).join(', ')}
+    ${isDeathEvent ? '\nMake the death dramatic and memorable, but keep it humorous and not grotesque.' : ''}
+    ${day >= 5 ? '\nSince this is day ' + day + ', make the event more intense and dramatic.' : ''}`;
 
     try {
       const response = await this.openai.chat.completions.create({
         model: "gpt-4o",
         messages: [{
           role: "system",
-          content: "You are a creative AI generating humorous but tasteful content for a Hunger Games parody game. Always respond with valid JSON only, no markdown or code blocks."
+          content: "You are a creative AI generating humorous but tasteful content for a Hunger Games parody game. Always respond with valid JSON only, no markdown or code blocks. When generating death events, make them dramatic and memorable."
         }, {
           role: "user",
           content: prompt
         }],
-        temperature: 0.9,
+        temperature: isDeathEvent ? 0.7 : 0.9, // Lower temperature for death events to make them more focused
         max_tokens: 500
       });
 
@@ -129,7 +139,7 @@ class AIService {
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-o3-mini",
         messages: [{
           role: "system",
           content: "You are a creative AI generating humorous but tasteful content for a Hunger Games parody game."
