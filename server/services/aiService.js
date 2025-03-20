@@ -18,7 +18,7 @@ class AIService {
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [{
           role: "system",
           content: "You are a creative AI generating humorous but tasteful content for a Hunger Games parody game."
@@ -49,7 +49,7 @@ class AIService {
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [{
           role: "system",
           content: "You are a creative AI generating humorous but tasteful content for a Hunger Games parody game."
@@ -75,7 +75,7 @@ class AIService {
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [{
           role: "system",
           content: "You are a creative AI generating humorous but tasteful content for a Hunger Games parody game."
